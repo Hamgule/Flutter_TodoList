@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:todolist/data/todo.dart';
 import 'package:todolist/screen/list_screen.dart';
@@ -19,20 +21,15 @@ Future<void> createTodoFB(Todo todo) async {
 }
 
 Future<void> readAllTodoFB() async {
-  QuerySnapshot querySnapshot = await coll.get();
-  final data = querySnapshot.docs.map((doc) => doc.data()).toList();
 
   todos = [];
 
-  for (var datum in data) {
-    todos.add(Todo.fromJson(datum));
-    addThings(
-      Todo(
-        id: todos.last.id,
-        work: todos.last.work,
-      ),
-    );
-  }
+  await coll.get().then((querySnapshot) {
+    for (var datum in querySnapshot.docs) {
+      todos.add(Todo.fromJson(datum.data()));
+      addThings(Todo.fromJson(datum.data()));
+    }
+  });
 }
 
 Future<void> updateTodoFB(Todo todo) async {
